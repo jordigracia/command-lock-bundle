@@ -14,8 +14,15 @@ To install `command-lock-bundle` you will need just a few minutes.
 ```json
 // ...
 "require": {
-    "ffreitas-br/command-lock-bundle": "dev-master",
+    "jordigracia/command-lock-bundle":"dev-master"
 },
+
+"repositories": [
+    {
+        "url": "git@github.com:jordigracia/command-lock-bundle.git",
+        "type": "git"
+    }
+    ],
 // ...
 ```
 After this run `composer update` or `composer intall` to refresh your dependencies.
