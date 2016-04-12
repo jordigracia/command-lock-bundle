@@ -69,6 +69,13 @@ class CommandLockEventListener extends ContainerAware
         // check if command is already executing
         if (file_exists($pidFile)) {
             $pidOfRunningCommand = file_get_contents($pidFile);
+            var_dump($pidOfRunningCommand);
+            /*if (posix_getpgid($pidOfRunningCommand) !== false) {
+                throw (new CommandAlreadyRunningException)
+                    ->setCommandName($commandName)
+                    ->setPidNumber($pidOfRunningCommand);
+            }*/
+            //Cambios funcionalidad en frontales
             if (posix_getpgid($pidOfRunningCommand) !== false) {
                 throw (new CommandAlreadyRunningException)
                     ->setCommandName($commandName)
@@ -78,7 +85,15 @@ class CommandLockEventListener extends ContainerAware
             unlink($pidFile);
         }
         // if is not already executing create pid file
-        file_put_contents($pidFile, getmypid());
+        //file_put_contents($pidFile, getmypid());
+
+        // Añadimos hostname para verificar desde que frontal se estan ejecutando
+        $string = gethostname().":".getmypid();
+        file_put_contents($pidFile, $string);
+
+        $pidOfRunningCommand = file_get_contents($pidFile);
+        var_dump($pidOfRunningCommand);
+        
         // register shutdown function to remove pid file in case of unexpected exit
         register_shutdown_function(array($this, 'shutDown'), null, $pidFile);
     }
