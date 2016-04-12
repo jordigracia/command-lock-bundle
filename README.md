@@ -59,6 +59,7 @@ command_lock:
 ```yaml
 ...
 
+
 command_lock:
     exceptions:
         - cache:warmup
