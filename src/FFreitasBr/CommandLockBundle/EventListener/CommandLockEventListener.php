@@ -73,25 +73,20 @@ class CommandLockEventListener extends ContainerAware
             
             if ($elements[0] == gethostname())
             {
-                 throw (new CommandAlreadyRunningException)
+                if (posix_getpgid($elements[1]) !== false) {
+                    throw (new CommandAlreadyRunningException)
+                        ->setCommandName($commandName)
+                        ->setPidNumber($pidOfRunningCommand);
+                }else{
+                    // pid file exist but the process is not running anymore
+                    unlink($pidFile);
+                }
+            }else{
+                throw (new CommandAlreadyRunningException)
                     ->setCommandName($commandName)
                     ->setPidNumber($pidOfRunningCommand);
             }
 
-            /*if (posix_getpgid($pidOfRunningCommand) !== false) {
-                throw (new CommandAlreadyRunningException)
-                    ->setCommandName($commandName)
-                    ->setPidNumber($pidOfRunningCommand);
-            }*/
-
-            //Cambios funcionalidad en frontales
-            /*if (posix_getpgid($pidOfRunningCommand) !== false) {
-                throw (new CommandAlreadyRunningException)
-                    ->setCommandName($commandName)
-                    ->setPidNumber($pidOfRunningCommand);
-            }*/
-            // pid file exist but the process is not running anymore
-            unlink($pidFile);
         }
         // if is not already executing create pid file
         //file_put_contents($pidFile, getmypid());
@@ -99,9 +94,6 @@ class CommandLockEventListener extends ContainerAware
         // Añadimos hostname para verificar desde que frontal se estan ejecutando
         $string = gethostname().":".getmypid();
         file_put_contents($pidFile, $string);
-
-        $pidOfRunningCommand = file_get_contents($pidFile);
-                
         // register shutdown function to remove pid file in case of unexpected exit
         register_shutdown_function(array($this, 'shutDown'), null, $pidFile);
     }
